@@ -4,7 +4,7 @@ import java.io.*;
 public class HTTPServer {
 
     /**
-     * Parse the input received from the client.
+     * This parses the input received from the client.
      * 
      * @param request
      * @return
@@ -12,11 +12,46 @@ public class HTTPServer {
     private String parseRequest(String request) {
         BufferedReader reader = new BufferedReader(request);
         String line = reader.readLine();
+        String input;
+        // Parse input
         while (!line.isEmpty()) {
+            input += line;
             System.out.println(line);
             line = reader.readLine();
         }
+        handleRequest(input);
     };
+
+    /**
+     * This function checks what kind of request was received (GET, POST, PUT,
+     * DELETE), and redirects to those instructions.
+     * 
+     * @param String request
+     * @return
+     */
+    private String handleRequest(String request) {
+        if (request == "GET")
+            ;
+        {
+
+        }
+        elif(request == "POST");
+        {
+
+        }
+        elif(request == "PUT");
+        {
+
+        }
+        elif(request == "DELETE");
+        {
+
+        }
+        else {
+            String error = "This is not a valid request.";
+            return error;
+        }
+    }
 
     public static void main(String[] args) {
 
