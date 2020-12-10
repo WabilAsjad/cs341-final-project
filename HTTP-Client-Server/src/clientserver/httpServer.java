@@ -15,6 +15,10 @@ public class httpServer implements Runnable{
     private PrintWriter os;
     private BufferedReader reader;
     private static int counter = 0;
+    private String link = "";
+    private String key = "";
+    private String key2 = "";
+    private String value = "";
 
     public httpServer(Socket c) {
         super();
@@ -28,37 +32,34 @@ public class httpServer implements Runnable{
         String line = "";
         try{
             line = reader.readLine();
+            String[] str = line.split(" ")[1].split("/");
+
+            // Get command from input
+            if(line.contains("GET")){
+                getRequest(str);
+            }else if(line.contains("DELETE")){
+                deleteRequest(str);
+            }else if(line.contains("PUT")){
+                putRequest(str);
+            }
         }catch (IOException ex){
             response(404);
+            os.flush();
         }
-        
-        // Get command from input
-        String[] str = line.split(" ")[1].split("/");
-        String link = str[1] + ".json";
-        if(line.contains("GET")){
-            String key = str[2];
-            getRequest(link, key);
-        }else if(line.contains("DELETE")){
-            String key = str[2];
-            deleteRequest(link, key);
-        }else if(line.contains("PUT")){
-            String firstname = str[2];
-            String lastname = str[3];
-            String gender = str[4];
-            String age = str[5];
-            String phoneNum = str[6];
-            putRequest(link, firstname, lastname, gender, age, phoneNum);
-        }
-        // else if(input.split("\n")[0].contains("POST")) handleRequest("POST", linkRequested, os);
+        // }else if(line.contains("POST")){
+        //     postRequest(str);
+        // }
     }
 
     /**
      * This function performs GET request: requests a representation of the specified resource
      * 
-     * @param String link
-     * @param String key
+     * @param String[] str
      */
-    private void getRequest(String link, String key){
+    private void getRequest(String[] str){
+        // check number of arguments
+        checkRequests(str);
+
         String result = "";
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
@@ -66,10 +67,16 @@ public class httpServer implements Runnable{
             Object obj = jsonParser.parse(fileReader);
             JSONArray database = (JSONArray) obj;
 
+            // Iterate through JSONArray
             for(Object temp: database){
                 JSONObject tem = (JSONObject) temp;
+                // If we find the JSONObject which client requested
                 if(tem.keySet().contains(key)){
-                    result = temp.toString();
+                    if(!key2.equals("") && ((JSONObject)tem.get(key)).keySet().contains(key2)){
+                        result = ((JSONObject)tem.get(key)).get(key2).toString();
+                    }else{
+                        result = tem.toJSONString();
+                    }
                     response(200);
                     os.write("Content type: text/plain \r\n");
                     os.write(result);
@@ -88,31 +95,91 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This function performs DELETE request: deletes the specified resource
+     * This function checks the number of arguments which client requested
+     * 
+     * @param String[] str
+     */
+    private void checkRequests(String[] str){
+        // no argument.
+        if(str.length < 2){
+            response(404);
+            os.flush();
+        // only one argument. ex: database
+        }else if(str.length == 2){
+            link = str[1] + ".json";
+            readWholeJSONFile(link);
+        // two arguments. ex: database/1
+        }else if(str.length == 3){
+            link = str[1] + ".json";
+            key = str[2];
+        // three arguments. ex: database/1/gender
+        }else if(str.length == 4){
+            link = str[1] + ".json";
+            key = str[2];
+            key2 = str[3];
+        // four arguments (PUT) ex: database/1/gender/man
+        }else if(str.length == 5){
+            link = str[1] + ".json";
+            key = str[2];
+            key2 = str[3];
+            value = str[4];
+        }
+    }
+
+    /**
+     * This function read the whole JSON file
      * 
      * @param String link
-     * @param String key
      */
-    private void deleteRequest(String link, String key){
+    private void readWholeJSONFile(String link){
+        JSONParser jsonParser = new JSONParser();
+        try (FileReader fileReader = new FileReader(link)){
+            //Read JSON file
+            Object obj = jsonParser.parse(fileReader);
+            JSONArray database = (JSONArray) obj;
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonString = gson.toJson(database);
+            response(200);
+            os.write(jsonString);
+            os.flush();
+        }catch (FileNotFoundException e) {
+            response(404);
+            os.flush();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }catch(ParseException e){
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * This function performs DELETE request: deletes the specified resource
+     * 
+     * @param String[] str
+     */
+    private void deleteRequest(String[] str){
+        // check number of arguments
+        checkRequests(str);
+
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
             //Read JSON file
             Object obj = jsonParser.parse(fileReader);
             JSONArray database = (JSONArray) obj;
            
-            for(Object temp: database){
-                JSONObject tem = (JSONObject) temp;
-                if(tem.keySet().contains(key)){
+            for(int i = 0; i < database.size(); i++){
+                JSONObject tem = (JSONObject) database.get(i);
+                if(!key.equals("") && tem.keySet().contains(key)){
                     database.remove(tem);
+                    if(!key2.equals("") && ((JSONObject)tem.get(key)).keySet().contains(key2)){ 
+                        ((JSONObject)tem.get(key)).remove(key2);
+                        database.add(i, tem);
+                    }
                     break;
                 }
             }
-
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String jsonString = gson.toJson(database);
-            FileWriter file = new FileWriter(link, false);
-            file.write(jsonString);
-            file.close();
+            writeJSONFile(database, link);
             response(200);
             os.write("Successfully delete: " + key + " from " + link);
             os.flush();
@@ -127,39 +194,122 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This function performs PUT request
+     * This function performs PUT request: 
      * 
-     * @param String link
-     * @param String information
+     * @param String[] str
      */
-    private void putRequest(String link, String firstname, String lastname, String gender, String age, String phoneNum){
+    private void putRequest(String[] str){
+        // check number of arguments
+        checkRequests(str);
+
+        System.out.println("here");
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
             //Read JSON file
             Object obj = jsonParser.parse(fileReader);
             JSONArray database = (JSONArray) obj;
+           
+            for(int i = 0; i < database.size(); i++){
+                JSONObject tem = (JSONObject) database.get(i);
+                if(!key.equals("") && tem.keySet().contains(key)){
+                    if(!key2.equals("") && ((JSONObject)tem.get(key)).keySet().contains(key2)){ 
+                        if(!value.equals("")){
+                            database.remove(i);
+                            ((JSONObject)tem.get(key)).put(key2, value);
+                            database.add(i, tem);
+                        }
+                    }
+                    break;
+                }           
+            }
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("firstName", firstname);
-            jsonObject.put("lastName", lastname);
-            jsonObject.put("gender", gender);
-            jsonObject.put("age", age);
-            jsonObject.put("phoneNumbers", phoneNum);
-
-            database.add(jsonObject);
-
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String jsonString = gson.toJson(database);
-            FileWriter file = new FileWriter(link, true);
-            file.write(jsonString);
-            file.close();
+            writeJSONFile(database, link);
             response(200);
+            os.write("Successfully update: " + key + " from " + link);
+            os.flush();
+        } catch (FileNotFoundException e) {
+            response(404);
+            os.flush();
         } catch (IOException e) {
-            response(304);
+            System.out.println("Error: " + e.getMessage());
         } catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
         }
     }
+    
+    /**
+     * This function performs POST request
+     * 
+     * @param String link
+     * @param String information
+     */
+    // private void postRequest(String[] str){
+    //     if(str.length < 2){
+    //         response(404);
+    //         os.close();
+    //     }
+    //     String link = str[1];
+        
+    //     try{
+    //         File myObj = new File(link);
+    //         if(myObj.createNewFile()){
+    //             addJSONObject(link, str);
+    //             response(201);
+    //             os.write("Content-Location: /" + myObj.getPath());
+    //             os.flush();
+    //         }else{
+    //             addJSONObject(link, str);
+    //             response(200);
+    //             os.flush();
+    //         }
+    //         os.close();
+    //     } catch (IOException e) {
+    //         response(404);
+    //         os.close();
+    //     }
+    // }
+
+    private void writeJSONFile(JSONArray database, String link){
+        try{
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonString = gson.toJson(database);
+            FileWriter file = new FileWriter(link, false);
+            file.write(jsonString);
+            file.close();
+        }catch (FileNotFoundException e) {
+            response(404);
+            os.flush();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    // private void addJSONObject(String link, String[] str){
+    //     JSONParser jsonParser = new JSONParser();
+    //     try{
+    //         //Read JSON file
+    //         Object obj = jsonParser.parse(new FileReader(link));
+    //         JSONArray database = (JSONArray) obj;
+
+    //         JSONObject jsonObject = new JSONObject();
+    //         JSONObject ob = new JSONObject();
+    //         jsonObject.put(database.size(), ob);
+    //         ob.put("firstName", str[2]);
+    //         ob.put("lastName", str[3]);
+    //         ob.put("gender", str[4]);
+    //         ob.put("age", str[5]);
+    //         ob.put("phoneNumbers", str[6]);
+
+    //         database.add(-1, jsonObject);
+
+    //         writeJSONFile(database, link);
+    //     }catch(ParseException e){
+    //         System.out.println("Error: " + e.getMessage());
+    //     }catch (IOException e) {
+    //         response(404);
+    //         os.close();
+    //     }
+    // }
     
     /**
      * This function get responseCode and write back to client

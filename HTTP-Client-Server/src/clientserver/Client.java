@@ -52,7 +52,7 @@ public class Client {
         os.write("Content length: 0\r\n");
         os.write("\r\n");
 
-        System.out.println("PUT Request Header Sent.");
+        System.out.println("PUT Request Sent.");
         System.out.println("------------------");
 
         String response;
@@ -90,10 +90,10 @@ public class Client {
         System.out.println("Starting client server...");
         System.out.println("Enter your request:");
         String input = scan.nextLine();
+        scan.close();
         String[] argv = input.split(" ");
         String command = argv[0];
         String requests = argv[1];   
         receiveRequests(command, requests);
-        scan.close();
     }
 }

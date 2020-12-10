@@ -1,7 +1,12 @@
 {
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "lib/json-simple-1.1.1.jar",
-        "lib/gson-2.7.jar"
-    ]
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "lib/json-simple-1.1.1.jar",
+            "lib/gson-2.7.jar"
+        ],
+        "exclude": [
+            "lib/JSON-java/gradle/wrapper/gradle-wrapper.jar"
+        ]
+    }
 }

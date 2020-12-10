@@ -9,6 +9,20 @@
             "name": "CodeLens (Launch) - Client",
             "request": "launch",
             "mainClass": "clientserver.Client",
+            "projectName": "HTTP-Client-Server_e92aaa43"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - httpServer",
+            "request": "launch",
+            "mainClass": "clientserver.httpServer",
+            "projectName": "HTTP-Client-Server_e92aaa43"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Client",
+            "request": "launch",
+            "mainClass": "clientserver.Client",
             "projectName": "HTTP-Client-Server_1c8e12a9"
         },
         {
