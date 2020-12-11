@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 import com.google.gson.*;
+import java.nio.file.*;
+import java.nio.charset.*;
 
 public class httpServer implements Runnable{
 
@@ -57,9 +59,70 @@ public class httpServer implements Runnable{
      * @param String[] str
      */
     private void getRequest(String[] str){
-        // check number of arguments
-        checkRequests(str);
+        // check number of arguments in client's input
+        // no argument.
+        if(str.length < 2){
+            response(404);
+            os.flush();
+        // only one argument. ex: database
+        }else if(str.length == 2){
+            if(str[1].endsWith("html") || str[1].endsWith("htm")){
+                readHTMLFile(str[1]);
+            }else{
+                link = str[1] + ".json";
+                readWholeJSONFile(link);
+            }
+        }else{
+            // two arguments. ex: database/1
+            if(str.length >= 3){
+                link = str[1] + ".json";
+                key = str[2];
+            // three arguments. ex: database/1/gender
+            }
+            if(str.length >= 4){
+                key2 = str[3];
+            // four arguments (PUT) ex: database/1/gender/man
+            }
+            if(str.length >= 5){
+                value = str[4];
+            }
+            getJSONFile(link);
+        }
+    }
 
+    /**
+     * This function read the whole HTML file
+     * 
+     * @param String link
+     */
+    private void readHTMLFile(String link){
+        try{
+            File file = new File(link);
+            int length = (int)file.length();
+
+            if(!file.exists() || file.isDirectory()){
+                response(404);
+                os.flush();
+            }else{
+                byte[] fileBytes = Files.readAllBytes(Paths.get(link));
+                String fileString = new String(fileBytes, StandardCharsets.UTF_8);
+                response(200);
+                os.write("Content type: text/html \r\n");
+                os.write("Content length: " + length + "\r\n");
+                os.write(fileString);
+                os.flush();
+            }
+        }catch(IOException e){
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * This function read the JSON file with key
+     * 
+     * @param String link
+     */
+    private void getJSONFile(String link){
         String result = "";
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
@@ -93,39 +156,7 @@ public class httpServer implements Runnable{
             System.out.println("Error: " + e.getMessage());
         }
     }
-
-    /**
-     * This function checks the number of arguments which client requested
-     * 
-     * @param String[] str
-     */
-    private void checkRequests(String[] str){
-        // no argument.
-        if(str.length < 2){
-            response(404);
-            os.flush();
-        // only one argument. ex: database
-        }else if(str.length == 2){
-            link = str[1] + ".json";
-            readWholeJSONFile(link);
-        // two arguments. ex: database/1
-        }else if(str.length == 3){
-            link = str[1] + ".json";
-            key = str[2];
-        // three arguments. ex: database/1/gender
-        }else if(str.length == 4){
-            link = str[1] + ".json";
-            key = str[2];
-            key2 = str[3];
-        // four arguments (PUT) ex: database/1/gender/man
-        }else if(str.length == 5){
-            link = str[1] + ".json";
-            key = str[2];
-            key2 = str[3];
-            value = str[4];
-        }
-    }
-
+    
     /**
      * This function read the whole JSON file
      * 
@@ -141,6 +172,7 @@ public class httpServer implements Runnable{
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonString = gson.toJson(database);
             response(200);
+            os.write("Content type: text/plain \r\n");
             os.write(jsonString);
             os.flush();
         }catch (FileNotFoundException e) {
@@ -151,6 +183,7 @@ public class httpServer implements Runnable{
         }catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
         }
+        return;
     }
     
     /**
@@ -160,8 +193,75 @@ public class httpServer implements Runnable{
      */
     private void deleteRequest(String[] str){
         // check number of arguments
-        checkRequests(str);
+        // check number of arguments in client's input
+        // no argument.
+        if(str.length < 2){
+            response(404);
+            os.flush();
+        // only one argument. ex: database
+        }else if(str.length == 2){
+            if(str[1].endsWith("html") || str[1].endsWith("htm")){
+                link = str[1];
+            }else{
+                link = str[1] + ".json";
+            }
+            deleteWholeFile(link);
+        }else{
+            // two arguments. ex: database/1
+            if(str.length >= 3){
+                link = str[1] + ".json";
+                key = str[2];
+            // three arguments. ex: database/1/gender
+            }
+            if(str.length >= 4){
+                key2 = str[3];
+            // four arguments (PUT) ex: database/1/gender/man
+            }
+            if(str.length >= 5){
+                value = str[4];
+            }
+            deleteJSON(link);
+        }
+    }
 
+    /**
+     * This function performs DELETE request on wholeFile
+     * 
+     * @param String link
+     */
+    private void deleteWholeFile(String link){
+        String deleteMessage = "";
+        if(link.endsWith("json")){
+            deleteMessage = "File deleted.";
+        }else{
+            deleteMessage = "<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n</html>";
+        }
+
+        File file = new File(link);
+        if(!file.exists() || file.isDirectory()){
+            response(404);
+            os.flush();
+        }else{
+            FileWriter filewriter;
+            try{
+                filewriter = new FileWriter(link);
+                filewriter.write(deleteMessage);
+                filewriter.close();
+                response(200);
+                os.write(deleteMessage);
+                os.flush();
+            }catch(IOException ex){
+                response(304);
+            }
+        }
+    }
+    
+    /**
+     * This function performs DELETE request on JSON database
+     * 
+     * @param String link
+     */
+    private void deleteJSON(String link){
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
             //Read JSON file
@@ -192,7 +292,7 @@ public class httpServer implements Runnable{
             System.out.println("Error: " + e.getMessage());
         }
     }
-
+    
     /**
      * This function performs PUT request: 
      * 
@@ -200,7 +300,7 @@ public class httpServer implements Runnable{
      */
     private void putRequest(String[] str){
         // check number of arguments
-        checkRequests(str);
+        // checkRequests(str);
 
         System.out.println("here");
         JSONParser jsonParser = new JSONParser();
@@ -343,7 +443,7 @@ public class httpServer implements Runnable{
     /**
      * This function get the TimeStamp
      * 
-     * @return
+     * @return 
      */
     private String getTime(){
         Date date = new Date();
