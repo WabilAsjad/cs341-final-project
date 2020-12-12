@@ -20,6 +20,7 @@ public class Client {
         if(command.equals("GET")) getRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("DELETE")) deleteRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("PUT")) putRequest(command, clientRequest, clientSocket, reader, os);
+        else if(command.equals("POST")) postRequest(command, clientRequest, clientSocket, reader, os);
     }
 
     public static void getRequest(String command, String clientRequest,
@@ -48,7 +49,7 @@ public class Client {
         os.write("Host: localhost\r\n");
         os.write("Languge-Accepted: en-us\r\n");
         os.write("Connection: Keep-Alive\r\n");
-        os.write("Content type: text/html\r\n");
+        os.write("Content type: text/plain\r\n");
         os.write("Content length: 0\r\n");
         os.write("\r\n");
 
@@ -73,6 +74,29 @@ public class Client {
         os.write("\r\n");
         os.flush();
         System.out.println("DELETE Request Sent.");
+        System.out.println("------------------");
+
+        String response;
+        while((response = reader.readLine()) != null){
+            System.out.println(response);
+        }
+
+        os.close();
+        reader.close();
+        clientSocket.close();
+    }
+
+    public static void postRequest(String command, String clientRequest,
+                Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        os.write("POST /" + clientRequest + "/ HTTP/1.1\r\n");
+        os.write("Host: localhost\r\n");
+        os.write("Languge-Accepted: en-us\r\n");
+        os.write("Connection: Keep-Alive\r\n");
+        os.write("Content type: text/plain\r\n");
+        os.write("Content length: 0\r\n");
+        os.write("\r\n");
+
+        System.out.println("POST Request Sent.");
         System.out.println("------------------");
 
         String response;
