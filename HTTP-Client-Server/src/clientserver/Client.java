@@ -6,6 +6,10 @@ import java.util.Scanner;
 
 public class Client {
 
+    public Client(){
+        super();
+    }
+
     public static void receiveRequests(String command, String clientRequest) throws IOException{
         Socket clientSocket = new Socket("localhost", 8082);
         
@@ -52,6 +56,7 @@ public class Client {
         os.write("Content type: text/plain\r\n");
         os.write("Content length: 0\r\n");
         os.write("\r\n");
+        os.flush();
 
         System.out.println("PUT Request Sent.");
         System.out.println("------------------");
@@ -95,6 +100,7 @@ public class Client {
         os.write("Content type: text/plain\r\n");
         os.write("Content length: 0\r\n");
         os.write("\r\n");
+        os.flush();
 
         System.out.println("POST Request Sent.");
         System.out.println("------------------");
@@ -115,6 +121,13 @@ public class Client {
         System.out.println("Enter your request:");
         String input = scan.nextLine();
         scan.close();
+        String[] argv = input.split(" ");
+        String command = argv[0];
+        String requests = argv[1];   
+        receiveRequests(command, requests);
+    }
+
+    public static void runClient(String input) throws IOException{
         String[] argv = input.split(" ");
         String command = argv[0];
         String requests = argv[1];   
