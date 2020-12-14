@@ -16,9 +16,8 @@ We imported two jar files in `lib` folder: `gson-2.7.jar` and `json-simple-1.1.1
 Instructions to install required software dependencies (with links to software or other documentation as needed) and compile and configure your system.
 
 ## Running HTTP Client-Server
-* In order to run Java in Visual Studio Code, please follow the link and install the coding pack and the Java extension pack.
-- Reference Link: https://code.visualstudio.com/docs/languages/java#_install-visual-studio-code-for-java
-After opening Visual Studio Code, click `File` then `Open`, then open the entire folder, HTTP-Client-Server folder. 
+* In order to run Java in Visual Studio Code, please follow the link and install the coding pack and the Java extension pack: https://code.visualstudio.com/docs/languages/java#_install-visual-studio-code-for-java
+* After opening Visual Studio Code, click `File` then `Open`, then open the entire folder, HTTP-Client-Server folder. 
 
 ## Features
 
