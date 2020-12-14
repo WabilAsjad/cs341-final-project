@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - formatJSON",
+            "request": "launch",
+            "mainClass": "clientserver.formatJSON",
+            "projectName": "HTTP-Client-Server_e92aaa43"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - ListofRequests",
             "request": "launch",
             "mainClass": "clientserver.ListofRequests",

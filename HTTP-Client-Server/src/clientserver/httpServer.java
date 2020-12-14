@@ -40,7 +40,9 @@ public class httpServer implements Runnable{
 
             // Get command from input and determines whether it's GET/DELETE/PUT/POST
             if(line.contains("GET")){
-                getRequest(str);
+                getAndHeadRequests(str, "GET");
+            }else if(line.contains("HEAD")){
+                getAndHeadRequests(str, "HEAD");
             }else if(line.contains("DELETE")){
                 deleteRequest(str);
             }else if(line.contains("PUT")){
@@ -59,7 +61,7 @@ public class httpServer implements Runnable{
      * 
      * @param String[] str
      */
-    private void getRequest(String[] str){
+    private void getAndHeadRequests(String[] str, String command){
         // check number of arguments in client's input
         // no argument.
         if(str.length < 2){
@@ -68,10 +70,10 @@ public class httpServer implements Runnable{
         // only one argument. ex: database or Home.html
         }else if(str.length == 2){
             if(str[1].endsWith("html") || str[1].endsWith("htm")){
-                readHTMLFile(str[1]);
+                readHTMLFile(str[1], command);
             }else{
                 link = str[1] + ".json";
-                readWholeJSONFile(link);
+                readWholeJSONFile(link, command);
             }
         }else{
             // two arguments. ex: database/1
@@ -87,7 +89,7 @@ public class httpServer implements Runnable{
             if(str.length >= 5){
                 value = str[4];
             }
-            getJSONFile(link);
+            getJSONFile(link, command);
         }
     }
 
@@ -96,7 +98,7 @@ public class httpServer implements Runnable{
      * 
      * @param String link
      */
-    private void readHTMLFile(String link){
+    private void readHTMLFile(String link, String command){
         try{
             // Open the file
             File file = new File(link);
@@ -107,14 +109,16 @@ public class httpServer implements Runnable{
                 response(404);
                 os.flush();
             }else{
-                // Read all contents in the file
-                byte[] fileBytes = Files.readAllBytes(Paths.get(link));
-                String fileString = new String(fileBytes, StandardCharsets.UTF_8);
                 // Send response to the client
                 response(200);
                 os.write("Content type: text/html \r\n");
                 os.write("Content length: " + length + "\r\n");
-                os.write(fileString);
+                if(command.equals("GET")){
+                    // Read all contents in the file
+                    byte[] fileBytes = Files.readAllBytes(Paths.get(link));
+                    String fileString = new String(fileBytes, StandardCharsets.UTF_8);
+                    os.write(fileString);
+                }
                 os.flush();
             }
         }catch(IOException e){
@@ -127,7 +131,7 @@ public class httpServer implements Runnable{
      * 
      * @param String link
      */
-    private void getJSONFile(String link){
+    private void getJSONFile(String link, String command){
         String jsonString = "";
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
@@ -149,11 +153,14 @@ public class httpServer implements Runnable{
                     // Send response to the client
                     response(200);
                     os.write("Content type: text/plain \r\n");
-                    os.write(jsonString);
+                    if(command.equals("GET")) os.write(jsonString);
                     os.flush();
-                    break;
+                    return;
                 }
             }
+            response(404);
+            os.write("Contents not in the file. \r\n");
+            os.flush();
         } catch (FileNotFoundException e) {
             response(404);
             os.flush();
@@ -169,19 +176,21 @@ public class httpServer implements Runnable{
      * 
      * @param String link
      */
-    private void readWholeJSONFile(String link){
+    private void readWholeJSONFile(String link, String command){
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
-            //Read JSON file
-            Object obj = jsonParser.parse(fileReader);
-            JSONArray database = (JSONArray) obj;
-
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String jsonString = gson.toJson(database);
             // Send response to the client
             response(200);
             os.write("Content type: text/plain \r\n");
-            os.write(jsonString);
+            if(command.equals("GET")){
+                //Read JSON file
+                Object obj = jsonParser.parse(fileReader);
+                JSONArray database = (JSONArray) obj;
+
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                String jsonString = gson.toJson(database);
+                os.write(jsonString);
+            }
             os.flush();
         }catch (FileNotFoundException e) {
             response(404);
@@ -399,28 +408,28 @@ public class httpServer implements Runnable{
      * @param String[] str
      */
     private void postJSONRequest(String link, String[] str){
-        if(str.length != 7){
-            response(404);
-            os.write("Not enough information.");
-            os.flush();
-        }else{
-            try{
-                File myObj = new File(link);
-                if(myObj.createNewFile()){
-                    addJSONObject(link, str);
-                    response(201);
-                    os.write("Content-Location: /" + myObj.getPath());
+        try{
+            File myObj = new File(link);
+            if(myObj.createNewFile()){
+                JSONArray database = new JSONArray();
+                writeJSONFile(database, link);
+                response(201);
+                os.write("Content-Location: /" + myObj.getPath());
+                os.flush();
+            }else{
+                if(str.length != 7){
+                    response(404);
+                    os.write("Not enough information.");
                     os.flush();
                 }else{
                     addJSONObject(link, str);
                     response(200);
                     os.flush();
                 }
-                os.close();
-            } catch (IOException e) {
-                response(404);
-                os.flush();
             }
+        } catch (IOException e) {
+            response(404);
+            os.flush();
         }
     }
     
@@ -442,7 +451,7 @@ public class httpServer implements Runnable{
             jsonObject.put("firstName", str[2]);
             jsonObject.put("lastName", str[3]);
             jsonObject.put("gender", str[4]);
-            jsonObject.put("age", str[5]);
+            jsonObject.put("email", str[5]);
             jsonObject.put("phoneNumbers", str[6]);
             json.put(database.size()+1, jsonObject);
 

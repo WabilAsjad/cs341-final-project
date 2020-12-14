@@ -6,10 +6,21 @@ import java.util.Scanner;
 
 public class Client {
 
+    private static Socket clientSocket;
+    private static BufferedReader reader;
+    private static PrintWriter os;
+
     public Client(){
         super();
     }
 
+    /**
+     * This function receives requests
+     * Detemine whether the request is GET, HEAD, DELETE, POST, PUT
+     * 
+     * @param String command
+     * @param String clientRequest
+     */
     public static void receiveRequests(String command, String clientRequest) throws IOException{
         Socket clientSocket = new Socket("localhost", 8082);
         
@@ -17,16 +28,25 @@ public class Client {
         System.out.println("Connected");
         System.out.println("------------------");
 
-        InputStreamReader request = new InputStreamReader(clientSocket.getInputStream());
-        BufferedReader reader = new BufferedReader(request);
-        PrintWriter os = new PrintWriter(clientSocket.getOutputStream());
+        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        os = new PrintWriter(clientSocket.getOutputStream());
 
         if(command.equals("GET")) getRequest(command, clientRequest, clientSocket, reader, os);
+        else if(command.equals("HEAD")) headRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("DELETE")) deleteRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("PUT")) putRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("POST")) postRequest(command, clientRequest, clientSocket, reader, os);
     }
 
+    /**
+     * This function sends GET request 
+     * 
+     * @param String command
+     * @param String clientRequest
+     * @param Socket clientSocket
+     * @param BufferedReader reader
+     * @param PrintWriter os
+     */
     public static void getRequest(String command, String clientRequest,
             Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
         os.write("GET /" + clientRequest + "/ HTTP/1.1\r\n");
@@ -103,6 +123,26 @@ public class Client {
         os.flush();
 
         System.out.println("POST Request Sent.");
+        System.out.println("------------------");
+
+        String response;
+        while((response = reader.readLine()) != null){
+            System.out.println(response);
+        }
+
+        os.close();
+        reader.close();
+        clientSocket.close();
+    }
+
+    public static void headRequest(String command, String clientRequest,
+    Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        os.write("HEAD /" + clientRequest + "/ HTTP/1.1\r\n");
+        os.write("Host: localhost\r\n");
+        os.write("Connection: close\r\n");
+        os.write("\r\n");
+        os.flush();
+        System.out.println("HEAD Request Sent.");
         System.out.println("------------------");
 
         String response;
