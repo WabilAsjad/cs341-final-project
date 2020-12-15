@@ -3,7 +3,7 @@
 - Authors: Wabil Asjad & Yaxin Liu
 
 ## Description
-This is a multithreading HTTP server based on socket TCP in java. The locally hosted server is a database server that provides http/rest interface. Requests include GET, HEAD, POST, PUT, and DELETE.
+This is a multithreaded HTTP server that uses socket programming and TCP, written in Java. The locally hosted server is a database server that provides http/rest interface. Implemented requests include GET, HEAD, POST, PUT, and DELETE.
 
 ## Folder Structure
 
@@ -16,11 +16,12 @@ The workspace contains two folders by default, where:
 ## Description of Files
 
 - `Client.java`: a client that sends HTTP requests to the server
-- `httpServer.java`: a locally hosted server that listens for requests, handles requests, and responses to client
+- `httpServer.java`: a locally hosted server that listens for requests, handles requests, and responses to the client
 - `formatJSON.java`: consists of code to format databases we downloaded from online
 - `Measurements.java`: consists of code to measure the effectiveness of the server
-- `database.json`: a database with 1000 data
-- `Home.html`: a simple HTML test file for GET and DELETE request
+- `database.json`: a database with approximately 1000 data points
+- `mini_database.json`: a database with approximately 20 data points
+- `Home.html`: a simple HTML test file for GET and DELETE requests
 
 ## Features
 Our multithreaded HTTP server provides HTTP/REST interface. We implemented the following requests:
@@ -65,7 +66,7 @@ We imported two jar files in `lib` folder:
 
 ![](https://i.imgur.com/3Al9qJ1.gif)
 
-- Then opened `setting.json` file in `.vscode`, check if you see the below information
+- Then open `setting.json` file in `.vscode`, check if you see the below information
 
 ![](https://i.imgur.com/wFWavY4.png)
 
@@ -87,4 +88,4 @@ in the terminal if the client runs successfully.
 ## Assumptions and Limitations
 
 ## Learn More
-Check out the slide: https://docs.google.com/presentation/d/195akDiXrJWZK4GMb9WR8_6hf7aldFTZeucLE-SQr5JI/edit?usp=sharing
+Check out the slides: https://docs.google.com/presentation/d/195akDiXrJWZK4GMb9WR8_6hf7aldFTZeucLE-SQr5JI/edit?usp=sharing
