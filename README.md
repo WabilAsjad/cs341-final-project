@@ -86,7 +86,9 @@ in the terminal if the client runs successfully.
 
 
 ## Assumptions and Limitations
+- This is a locally hosted server. We did not deploy it to cloud service.
+- We are using a simple JSON database rather than a more complex relational database. 
+- We did not add the functionality to do POST and PUT on HTML file. 
 
 ## Learn More
 Check out the slides: https://docs.google.com/presentation/d/195akDiXrJWZK4GMb9WR8_6hf7aldFTZeucLE-SQr5JI/edit?usp=sharing
->>>>>>> 9c3097062c9c371ed48b98803e1e2a1a0cdb3f20
