@@ -56,7 +56,7 @@ public class Measurements {
         requests.add("GET database/284");
         requests.add("GET database/382");
         // Error checking
-        requests.add("GET databse"); 
+        requests.add("GET databse");
         requests.add("GET info.html");
         requests.add("GET database/13022");
         requests.add("GET database/742/age");
@@ -93,10 +93,10 @@ public class Measurements {
         requests.add("PUT database/93");
         requests.add("PUT databse");
         // POST method
-        requests.add("POST database/Kellie/Shemelt/Female/kshemelt0@cocolog-nifty.com/4318353287"); 
+        requests.add("POST database/Kellie/Shemelt/Female/kshemelt0@cocolog-nifty.com/4318353287");
         requests.add("POST database/Abbot/Scantleberry/Male/ascantleberry1@usgs.gov/1604841661");
         requests.add("POST database/Con/Rosier/Male/crosier2@amazon.co.uk/4153128592");
-        
+
         requests.add("PUT database/1/gender/female");
         requests.add("GET database/212");
         requests.add("PUT database/20/email/gtongj@school.edu");
@@ -112,17 +112,17 @@ public class Measurements {
 
         requests.add("GET database/628");
         requests.add("DELETE database/999");
-        requests.add("POST database/");
-        requests.add("POST database/");
-        requests.add("POST database/");
+        requests.add("POST database/Mary/Scan/Female/mscan@mit.gov/1836841699");
+        requests.add("POST database/Moira/Rose/Female/mrose@creek.gov/1604729357");
+        requests.add("POST database/Alexis/Rose/Female/arose1@creek.gov/1678341865");
 
-        requests.add("POST database/");
+        requests.add("POST database/Abbotttt/Scantleberryyyy/Female/ascantleberry123@usgs.gov/1604841661");
         requests.add("GET database/617");
         requests.add("DELETE database/82");
         requests.add("DELETE database/72");
         requests.add("PUT database/791/firstName/wabil");
 
-        requests.add("POST database/");
+        requests.add("POST database/Bag/Sweater/Male/bsweater13@wellesley.gov/1604841999");
         requests.add("GET database/1002");
         requests.add("DELETE database/327");
         requests.add("PUT database/759/firstName/annie");
@@ -140,13 +140,13 @@ public class Measurements {
         requests.add("PUT database/422/gender/Female");
         requests.add("PUT database/333/gender/Female");
 
-        requests.add("POST database/");
+        requests.add("POST database/Jerry/Tom/Female/jtom1@usgs.gov/1604841999");
         requests.add("GET database/241");
         requests.add("PUT database/667/email/fdgjkdfhg@email.edu");
         requests.add("PUT database/622/firstName/testing");
-        requests.add("POST database/");
+        requests.add("POST database/David/Rose/Male/drose@creek.gov/1604782636");
         return requests;
-     }
+    }
 }
 
 // Throughput - measure of how many units of information a system can process in
