@@ -80,8 +80,8 @@ in the terminal if the server runs successfully.
 `Enter your request:` 
 in the terminal if the client runs successfully.
 - Then enter your request. Check Features on how to enter the requests.
-![](https://i.imgur.com/uuurh88.gif)
 
+![](https://i.imgur.com/uuurh88.gif)
 
 
 ## Assumptions and Limitations
