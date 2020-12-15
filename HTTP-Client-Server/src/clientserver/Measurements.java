@@ -53,12 +53,51 @@ public class Measurements {
 
         requests.add("GET database/212");
         requests.add("PUT database/20/email/gtongj@school.edu");
-        ******requests.add("POST database/1001/");
         requests.add("GET database/952");
         requests.add("PUT database/520/firstName/wabil");
         requests.add("HEAD database");
 
+        requests.add("GET database/912");
+        requests.add("PUT database/993/lastName/Geos");
+        requests.add("GET database/753");
+        requests.add("DELETE database/3");
+        requests.add("DELETE database/999/lastName/deleting");
 
+        requests.add("GET database/628");
+        requests.add("DELETE database/999");
+        requests.add("POST database/");
+        requests.add("POST database/");
+        requests.add("POST database/");
+
+        requests.add("POST database/");
+        requests.add("GET database/617");
+        requests.add("DELETE database/82");
+        requests.add("DELETE database/72");
+        requests.add("PUT database/791/firstName/wabil");
+
+        requests.add("POST database/");
+        requests.add("GET database/1002");
+        requests.add("DELETE database/327");
+        requests.add("PUT database/759/firstName/annie");
+        requests.add("HEAD database");
+
+        requests.add("DELETE database/351");
+        requests.add("PUT database/247/firstName/annie");
+        requests.add("GET database/1999"); // Error check
+        requests.add("GET database/459");
+        requests.add("GET database/289");
+
+        requests.add("PUT database/481/gender/Male");
+        requests.add("PUT database/887/lastName/testing");
+        requests.add("PUT database/853/gender/Female");
+        requests.add("PUT database/422/gender/Female");
+        requests.add("PUT database/333/gender/Female");
+
+        requests.add("POST database/");
+        requests.add("GET database/241");
+        requests.add("PUT database/667/email/fdgjkdfhg@email.edu");
+        requests.add("PUT database/622/firstName/testing");
+        requests.add("POST database/");
 
         return requests;
     }
