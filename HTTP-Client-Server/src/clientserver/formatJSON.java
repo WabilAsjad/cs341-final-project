@@ -11,7 +11,7 @@ public class formatJSON {
         JSONParser jsonParser = new JSONParser();
         try{
             //Read JSON file
-            Object obj = jsonParser.parse(new FileReader("database.json"));
+            Object obj = jsonParser.parse(new FileReader("mini_database.json"));
             JSONArray database = (JSONArray) obj;
 
             JSONArray newDatabase = new JSONArray();
@@ -26,7 +26,7 @@ public class formatJSON {
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonString = gson.toJson(newDatabase);
-            FileWriter file = new FileWriter("database.json", false);
+            FileWriter file = new FileWriter("mini_database.json", false);
             file.write(jsonString);
             file.close();
         }catch (FileNotFoundException e) {
