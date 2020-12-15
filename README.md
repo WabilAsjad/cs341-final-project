@@ -80,12 +80,13 @@ in the terminal if the server runs successfully.
 `Starting client server...`
 `Enter your request:` 
 in the terminal if the client runs successfully.
+- Then enter your request. Check Features on how to enter the requests.
 
 ![](https://i.imgur.com/uuurh88.gif)
-
 
 
 ## Assumptions and Limitations
 
 ## Learn More
 Check out the slides: https://docs.google.com/presentation/d/195akDiXrJWZK4GMb9WR8_6hf7aldFTZeucLE-SQr5JI/edit?usp=sharing
+>>>>>>> 9c3097062c9c371ed48b98803e1e2a1a0cdb3f20
