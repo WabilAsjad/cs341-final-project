@@ -44,7 +44,8 @@ Our multithreaded HTTP server provides HTTP/REST interface. We implemented the f
         - `DELETE` a key from a JSONObject: `DELETE database/1/email`
     - `DELETE` data from HTML: `DELETE Home.html`
 - `POST`: create or add a new item to the database
-    - ` POST` data to the database: `POST database/annie/liu/Female/12345@gmail.com/123456789`
+    - `POST` data to the database: `POST database/annie/liu/Female/12345@gmail.com/123456789`
+    - `POST` a new database: `POST new_database_name`
 - `PUT`: modify or replace the current data with the requested data
     - `PUT` data to the database: `PUT database/1/firstName/annie`
 

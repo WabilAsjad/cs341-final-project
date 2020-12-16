@@ -27,7 +27,7 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This parses the input received from the client.
+     * This function parses the input received from the client.
      */
     private void parseRequest() {
         try{
@@ -60,6 +60,7 @@ public class httpServer implements Runnable{
      * This function performs GET request: requests a representation of the specified resource
      * 
      * @param String[] str
+     * @param String command
      */
     private void getAndHeadRequests(String[] str, String command){
         // check number of arguments in client's input
@@ -94,9 +95,10 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This function read the whole HTML file
+     * This function reads the whole HTML file
      * 
      * @param String link
+     * @param String command
      */
     private void readHTMLFile(String link, String command){
         try{
@@ -127,11 +129,13 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This function read the JSON file with key
+     * This function reads the JSON file with key
      * 
      * @param String link
+     * @param String command
      */
     private void getJSONFile(String link, String command){
+        // Initialize variable
         String jsonString = "";
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
@@ -158,6 +162,7 @@ public class httpServer implements Runnable{
                     return;
                 }
             }
+            // If we do not find the JSONObject which client requested
             response(404);
             os.write("Contents not in the file. \r\n");
             os.flush();
@@ -172,11 +177,13 @@ public class httpServer implements Runnable{
     }
     
     /**
-     * This function read the whole JSON file
+     * This function reads the whole JSON file
      * 
      * @param String link
+     * @param String command
      */
     private void readWholeJSONFile(String link, String command){
+        // Initialize parser
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
             // Send response to the client
@@ -187,6 +194,7 @@ public class httpServer implements Runnable{
                 Object obj = jsonParser.parse(fileReader);
                 JSONArray database = (JSONArray) obj;
 
+                // write jsonString in JSON format using Gson
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String jsonString = gson.toJson(database);
                 os.write(jsonString);
@@ -246,6 +254,7 @@ public class httpServer implements Runnable{
      */
     private void deleteWholeFile(String link){
         String deleteMessage = "";
+        // Initialize deleteMessage for database and HTML
         if(link.endsWith("json")){
             deleteMessage = "File deleted.";
         }else{
@@ -270,7 +279,7 @@ public class httpServer implements Runnable{
                 os.write(deleteMessage);
                 os.flush();
             }catch(IOException ex){
-                response(304);
+                response(404);
                 os.flush();
             }
         }
@@ -282,6 +291,7 @@ public class httpServer implements Runnable{
      * @param String link
      */
     private void deleteJSON(String link){
+        // Initialize parser
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(link)){
             //Read JSON file
@@ -322,11 +332,13 @@ public class httpServer implements Runnable{
      * @param String[] str
      */
     private void putRequest(String[] str){
+        // Check if there are enough arguments
         if(str.length < 5){
             response(404);
             os.flush();
         }
 
+        // Parse the arguments
         link = str[1] + ".json";
         key = str[2];
         key2 = str[3];
@@ -338,6 +350,7 @@ public class httpServer implements Runnable{
             Object obj = jsonParser.parse(fileReader);
             JSONArray database = (JSONArray) obj;
            
+            // Update the data
             for(int i = 0; i < database.size(); i++){
                 JSONObject tem = (JSONObject) database.get(i);
                 if(!key.equals("") && tem.keySet().contains(key)){
@@ -352,6 +365,7 @@ public class httpServer implements Runnable{
                 }           
             }
 
+            // Write back to JSON file
             writeJSONFile(database, link);
             response(200);
             os.write("Successfully update: " + key + " from " + link);
@@ -367,13 +381,14 @@ public class httpServer implements Runnable{
     }
     
     /**
-     * This function write/update JSON file
+     * This function writes/updates JSON file
      * 
      * @param JSONArray database
      * @param String link
      */
     private void writeJSONFile(JSONArray database, String link){
         try{
+            // Writing jsonString in JSON format using Gson
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonString = gson.toJson(database);
             FileWriter file = new FileWriter(link, false);
@@ -393,6 +408,7 @@ public class httpServer implements Runnable{
      * @param String link
      */
     private void postRequest(String[] str){
+        // Check if there is at least one argument
         if(str.length < 2){
             response(404);
             os.flush();
@@ -409,7 +425,9 @@ public class httpServer implements Runnable{
      */
     private void postJSONRequest(String link, String[] str){
         try{
+            // Open the file
             File myObj = new File(link);
+            // If the file does not exist, create the file
             if(myObj.createNewFile()){
                 JSONArray database = new JSONArray();
                 writeJSONFile(database, link);
@@ -417,6 +435,7 @@ public class httpServer implements Runnable{
                 os.write("Content-Location: /" + myObj.getPath());
                 os.flush();
             }else{
+                // Check if there are enough arguments
                 if(str.length != 7){
                     response(404);
                     os.write("Not enough information.");
@@ -446,6 +465,7 @@ public class httpServer implements Runnable{
             Object obj = jsonParser.parse(new FileReader(link));
             JSONArray database = (JSONArray) obj;
 
+            // Add data to JSONObject
             JSONObject jsonObject = new JSONObject();
             JSONObject json = new JSONObject();
             jsonObject.put("firstName", str[2]);
@@ -455,19 +475,21 @@ public class httpServer implements Runnable{
             jsonObject.put("phoneNumbers", str[6]);
             json.put(database.size()+1, jsonObject);
 
+            // Add JSONObject to database
             database.add(database.size(), json);
 
+            // Write back to the file
             writeJSONFile(database, link);
         }catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
         }catch (IOException e) {
             response(404);
-            os.close();
+            os.flush();
         }
     }
     
     /**
-     * This function get responseCode and write back to client
+     * This function gets responseCode and write back to client
      * 
      * @param int responseCode
      */
@@ -483,12 +505,6 @@ public class httpServer implements Runnable{
             os.write("Date: " + getTime() + "\r\n");
             os.write("Server: localhost\r\n");
             os.write("\r\n");
-        }else if(responseCode == 304){
-            // 304 Not Modifies
-            os.write("HTTP/1.1 304 Not Modifies\r\n");
-            os.write("Date: " + getTime() + "\r\n");
-            os.write("Server: localhost\r\n");
-            os.write("\r\n");
         }else if(responseCode == 201){
             // 201 Created
             os.write("HTTP/1.1 201 Created\r\n");
@@ -498,7 +514,7 @@ public class httpServer implements Runnable{
     }
 
     /**
-     * This function get the TimeStamp
+     * This function gets the TimeStamp
      * 
      * @return 
      */
@@ -537,9 +553,7 @@ public class httpServer implements Runnable{
             
             // Parse Input
             parseRequest();
-        
-            // To do: wait for 10s and if there's no more requests, close the connection; otherwise open.
-            
+                    
             // Close the socket
             System.out.println("Closing the connection.");
             if(reader != null){

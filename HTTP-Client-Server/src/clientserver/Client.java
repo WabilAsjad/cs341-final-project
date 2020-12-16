@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 public class Client {
 
-    private static Socket clientSocket;
     private static BufferedReader reader;
     private static PrintWriter os;
 
@@ -28,9 +27,11 @@ public class Client {
         System.out.println("Connected");
         System.out.println("------------------");
 
+        // Initialize BufferedReader and PrintWriter
         reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         os = new PrintWriter(clientSocket.getOutputStream());
 
+        // Determine whether the request is GET, HEAD, DELETE, PUT, or POST
         if(command.equals("GET")) getRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("HEAD")) headRequest(command, clientRequest, clientSocket, reader, os);
         else if(command.equals("DELETE")) deleteRequest(command, clientRequest, clientSocket, reader, os);
@@ -49,6 +50,7 @@ public class Client {
      */
     public static void getRequest(String command, String clientRequest,
             Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        // Send request to the server
         os.write("GET /" + clientRequest + "/ HTTP/1.1\r\n");
         os.write("Host: localhost\r\n");
         os.write("Connection: close\r\n");
@@ -57,6 +59,7 @@ public class Client {
         System.out.println("GET Request Sent.");
         System.out.println("------------------");
 
+        // Receives and print response from the server
         String response;
         while((response = reader.readLine()) != null){
             System.out.println(response);
@@ -67,8 +70,18 @@ public class Client {
         clientSocket.close();
     }
 
+    /**
+     * This function sends PUT request 
+     * 
+     * @param String command
+     * @param String clientRequest
+     * @param Socket clientSocket
+     * @param BufferedReader reader
+     * @param PrintWriter os
+     */
     public static void putRequest(String command, String clientRequest,
                 Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        // Send request to the server
         os.write("PUT /" + clientRequest + "/ HTTP/1.1\r\n");
         os.write("Host: localhost\r\n");
         os.write("Languge-Accepted: en-us\r\n");
@@ -81,6 +94,7 @@ public class Client {
         System.out.println("PUT Request Sent.");
         System.out.println("------------------");
 
+        // Receives and print response from the server
         String response;
         while((response = reader.readLine()) != null){
             System.out.println(response);
@@ -91,8 +105,18 @@ public class Client {
         clientSocket.close();
     }
 
+    /**
+     * This function sends DELETE request 
+     * 
+     * @param String command
+     * @param String clientRequest
+     * @param Socket clientSocket
+     * @param BufferedReader reader
+     * @param PrintWriter os
+     */
     public static void deleteRequest(String command, String clientRequest,
         Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        // Send request to the server
         os.write("DELETE /" + clientRequest + "/ HTTP/1.1\r\n");
         os.write("Host: localhost\r\n");
         os.write("Connection: close\r\n");
@@ -101,6 +125,7 @@ public class Client {
         System.out.println("DELETE Request Sent.");
         System.out.println("------------------");
 
+        // Receives and print response from the server
         String response;
         while((response = reader.readLine()) != null){
             System.out.println(response);
@@ -111,8 +136,18 @@ public class Client {
         clientSocket.close();
     }
 
+    /**
+     * This function sends POST request 
+     * 
+     * @param String command
+     * @param String clientRequest
+     * @param Socket clientSocket
+     * @param BufferedReader reader
+     * @param PrintWriter os
+     */
     public static void postRequest(String command, String clientRequest,
                 Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        // Send request to the server
         os.write("POST /" + clientRequest + "/ HTTP/1.1\r\n");
         os.write("Host: localhost\r\n");
         os.write("Languge-Accepted: en-us\r\n");
@@ -125,6 +160,7 @@ public class Client {
         System.out.println("POST Request Sent.");
         System.out.println("------------------");
 
+        // Receives and print response from the server
         String response;
         while((response = reader.readLine()) != null){
             System.out.println(response);
@@ -135,8 +171,18 @@ public class Client {
         clientSocket.close();
     }
 
+    /**
+     * This function sends HEAD request 
+     * 
+     * @param String command
+     * @param String clientRequest
+     * @param Socket clientSocket
+     * @param BufferedReader reader
+     * @param PrintWriter os
+     */
     public static void headRequest(String command, String clientRequest,
     Socket clientSocket, BufferedReader reader, PrintWriter os) throws IOException{
+        // Send request to the server
         os.write("HEAD /" + clientRequest + "/ HTTP/1.1\r\n");
         os.write("Host: localhost\r\n");
         os.write("Connection: close\r\n");
@@ -145,6 +191,7 @@ public class Client {
         System.out.println("HEAD Request Sent.");
         System.out.println("------------------");
 
+        // Receives and print response from the server
         String response;
         while((response = reader.readLine()) != null){
             System.out.println(response);
@@ -156,17 +203,25 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException{
+        // Get input from command line
         Scanner scan = new Scanner(System.in);
         System.out.println("Starting client server...");
         System.out.println("Enter your request:");
         String input = scan.nextLine();
         scan.close();
+        // Parse the input
         String[] argv = input.split(" ");
         String command = argv[0];
-        String requests = argv[1];   
+        String requests = argv[1];
+        // Pass the input to receiveRequests
         receiveRequests(command, requests);
     }
 
+    /**
+     * This function is called when doing measurements
+     * 
+     * @param String INPUT
+     */
     public static void runClient(String input) throws IOException{
         String[] argv = input.split(" ");
         String command = argv[0];
