@@ -50,9 +50,11 @@ public class httpServer implements Runnable{
             }else if(line.contains("POST")){
                 postRequest(str);
             }
+            return;
         }catch (IOException ex){
             response(404);
             os.flush();
+            return;
         }
     }
 
@@ -68,13 +70,16 @@ public class httpServer implements Runnable{
         if(str.length < 2){
             response(404);
             os.flush();
+            return;
         // only one argument. ex: database or Home.html
         }else if(str.length == 2){
             if(str[1].endsWith("html") || str[1].endsWith("htm")){
                 readHTMLFile(str[1], command);
+                return;
             }else{
                 link = str[1] + ".json";
                 readWholeJSONFile(link, command);
+                return;
             }
         }else{
             // two arguments. ex: database/1
@@ -91,6 +96,7 @@ public class httpServer implements Runnable{
                 value = str[4];
             }
             getJSONFile(link, command);
+            return;
         }
     }
 
@@ -110,6 +116,7 @@ public class httpServer implements Runnable{
             if(!file.exists() || file.isDirectory()){
                 response(404);
                 os.flush();
+                return;
             }else{
                 // Send response to the client
                 response(200);
@@ -122,9 +129,11 @@ public class httpServer implements Runnable{
                     os.write(fileString);
                 }
                 os.flush();
+                return;
             }
         }catch(IOException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
 
@@ -150,9 +159,11 @@ public class httpServer implements Runnable{
                 if(tem.keySet().contains(key)){
                     if(!key2.equals("") && ((JSONObject)tem.get(key)).keySet().contains(key2)){
                         jsonString = ((JSONObject)tem.get(key)).get(key2).toString();
-                    }else{
+                    }else if(key2.equals("")){
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
                         jsonString = gson.toJson(tem);
+                    }else{
+                        break;
                     }
                     // Send response to the client
                     response(200);
@@ -166,13 +177,16 @@ public class httpServer implements Runnable{
             response(404);
             os.write("Contents not in the file. \r\n");
             os.flush();
+            return;
         } catch (FileNotFoundException e) {
             response(404);
             os.flush();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         } catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
     
@@ -200,13 +214,17 @@ public class httpServer implements Runnable{
                 os.write(jsonString);
             }
             os.flush();
+            return;
         }catch (FileNotFoundException e) {
             response(404);
+            os.write("File not found.");
             os.flush();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
     
@@ -221,6 +239,7 @@ public class httpServer implements Runnable{
         if(str.length < 2){
             response(404);
             os.flush();
+            return;
         // only one argument. ex: database or Home.html
         }else if(str.length == 2){
             if(str[1].endsWith("html") || str[1].endsWith("htm")){
@@ -229,6 +248,7 @@ public class httpServer implements Runnable{
                 link = str[1] + ".json";
             }
             deleteWholeFile(link);
+            return;
         }else{
             // two arguments. ex: database/1
             if(str.length >= 3){
@@ -244,6 +264,7 @@ public class httpServer implements Runnable{
                 value = str[4];
             }
             deleteJSON(link);
+            return;
         }
     }
 
@@ -266,7 +287,9 @@ public class httpServer implements Runnable{
         // Check if the file exists and is not a directory
         if(!file.exists() || file.isDirectory()){
             response(404);
+            os.write("File not exists or is a directory.");
             os.flush();
+            return;
         }else{
             // Write delete message to file using FileWriter
             FileWriter filewriter;
@@ -278,6 +301,7 @@ public class httpServer implements Runnable{
                 response(200);
                 os.write(deleteMessage);
                 os.flush();
+                return;
             }catch(IOException ex){
                 response(404);
                 os.flush();
@@ -302,12 +326,22 @@ public class httpServer implements Runnable{
             for(int i = 0; i < database.size(); i++){
                 JSONObject tem = (JSONObject) database.get(i);
                 if(!key.equals("") && tem.keySet().contains(key)){
-                    database.remove(tem);
                     if(!key2.equals("") && ((JSONObject)tem.get(key)).keySet().contains(key2)){ 
+                        database.remove(tem);
                         ((JSONObject)tem.get(key)).remove(key2);
                         database.add(i, tem);
+                    // If key2 not in database, return 204
+                    }else if(!key2.equals("") && !((JSONObject)tem.get(key)).keySet().contains(key2)){
+                        response(204);
+                        os.flush();
+                        return;
                     }
                     break;
+                // If key not in database, return 204
+                }else if(!key.equals("") && !tem.keySet().contains(key)){
+                    response(204);
+                    os.flush();
+                    return;
                 }
             }
             // Write back to JSON file
@@ -316,13 +350,16 @@ public class httpServer implements Runnable{
             response(200);
             os.write("Successfully delete: " + key + " from " + link);
             os.flush();
+            return;
         } catch (FileNotFoundException e) {
             response(404);
             os.flush();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         } catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
     
@@ -335,7 +372,9 @@ public class httpServer implements Runnable{
         // Check if there are enough arguments
         if(str.length < 5){
             response(404);
+            os.write("Not enough arguments.");
             os.flush();
+            return;
         }
 
         // Parse the arguments
@@ -360,9 +399,21 @@ public class httpServer implements Runnable{
                             ((JSONObject)tem.get(key)).replace(key2, value);
                             database.add(i, tem);
                         }
+                        break;
+                    // If key2 not in database
+                    }else if(!key2.equals("") && !((JSONObject)tem.get(key)).keySet().contains(key2)){
+                        response(404);
+                        os.write("Target not found.");
+                        os.flush();
+                        return;
                     }
-                    break;
-                }           
+                // If key not in database
+                }else if(!key.equals("") && !tem.keySet().contains(key)){
+                    response(404);
+                    os.write("Target not found.");
+                    os.flush();
+                    return;
+                }        
             }
 
             // Write back to JSON file
@@ -370,13 +421,16 @@ public class httpServer implements Runnable{
             response(200);
             os.write("Successfully update: " + key + " from " + link);
             os.flush();
+            return;
         } catch (FileNotFoundException e) {
             response(404);
             os.flush();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         } catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
     
@@ -394,11 +448,13 @@ public class httpServer implements Runnable{
             FileWriter file = new FileWriter(link, false);
             file.write(jsonString);
             file.close();
+            return;
         }catch (FileNotFoundException e) {
             response(404);
             os.flush();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }
     }
 
@@ -412,6 +468,7 @@ public class httpServer implements Runnable{
         if(str.length < 2){
             response(404);
             os.flush();
+            return;
         }
         String link = str[1] + ".json";
         postJSONRequest(link, str);
@@ -434,16 +491,19 @@ public class httpServer implements Runnable{
                 response(201);
                 os.write("Content-Location: /" + myObj.getPath());
                 os.flush();
+                return;
             }else{
                 // Check if there are enough arguments
                 if(str.length != 7){
                     response(404);
                     os.write("Not enough information.");
                     os.flush();
+                    return;
                 }else{
                     addJSONObject(link, str);
                     response(200);
                     os.flush();
+                    return;
                 }
             }
         } catch (IOException e) {
@@ -480,8 +540,10 @@ public class httpServer implements Runnable{
 
             // Write back to the file
             writeJSONFile(database, link);
+            return;
         }catch(ParseException e){
             System.out.println("Error: " + e.getMessage());
+            os.flush();
         }catch (IOException e) {
             response(404);
             os.flush();
@@ -508,6 +570,11 @@ public class httpServer implements Runnable{
         }else if(responseCode == 201){
             // 201 Created
             os.write("HTTP/1.1 201 Created\r\n");
+            os.write("Date: " + getTime() + "\r\n");
+            os.write("Server: localhost\r\n");
+        }else if(responseCode == 204){
+            // 204 No Contents
+            os.write("HTTP/1.1 204 No Contents\r\n");
             os.write("Date: " + getTime() + "\r\n");
             os.write("Server: localhost\r\n");
         }

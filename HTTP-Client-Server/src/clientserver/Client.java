@@ -211,6 +211,10 @@ public class Client {
         scan.close();
         // Parse the input
         String[] argv = input.split(" ");
+        if(argv.length < 2){
+            System.out.println("Please enter at least one argument.");
+            return;
+        }
         String command = argv[0];
         String requests = argv[1];
         // Pass the input to receiveRequests
